@@ -7,8 +7,8 @@ import math
 
 Z = np.loadtxt("train")
 
-X_train = Z[:,1:] # training data
-Y_train = Z[:,0] # training labels
+X_train = Z[:600,1:] # training data
+Y_train = Z[:600,0] # training labels
 
 X_test = Z[600:,1:] # testing data
 Y_test = Z[600:,0] # testing data
@@ -18,7 +18,6 @@ print ("dataset loaded")
 # gradient for l2 loss
 def getgradientL2(w):
     
-    #X_, Y_ = make_batch (X_train, Y_train, B)
     error = X_train.dot(w) - Y_train
     return 2*(np.transpose(X_train).dot(error))
 
@@ -35,11 +34,19 @@ def make_batch (X, Y, B):
     n = Y.size
     B_eff = min (n, B)
 
-    samples = random.sample(range(0, n), B_eff)
+    samples = random.sample(range(0, n), int(B_eff))
     X_ = X[samples,:]
     Y_ = Y[samples]
 
     return X_, Y_
+
+def getMBgradient(w, B, lamda):
+    X_, Y_ = make_batch (X_train, Y_train, B)
+    error = X_.dot(w) - Y_
+    L2_grad = 2*(np.transpose(X_).dot(error))
+    L1_grad = np.sign(w)
+
+    return L2_grad + lamda*L1_grad
 
 # proximal function for L1 norm
 def proximal (w, lamda):
@@ -49,7 +56,7 @@ def proximal (w, lamda):
     return x
 
 def update_alpha(alpha, i):
-    min_ = 1e-4
+    min_ = 1e-3
     if alpha <= min_:
         return min_
     return alpha/math.sqrt(i+1)
@@ -58,14 +65,12 @@ def get_loss (w):
     L2 = np.linalg.norm(X_train.dot(w) - Y_train, 2)
     L2 = L2*L2
     L1 = np.linalg.norm(w, 1)
-    print ("L1: ", L1, " L2: ", L2)
     return L1 + L2
 
 # contains template for gardient descent
 def gradient_descent():
 
     d = X_train.shape[1]
-    #print('number of dimension: ', d)
     w = np.zeros(d)
     B = 5
     lamda = 1
@@ -88,13 +93,13 @@ def gradient_descent():
                 print ("saturated")
                 break
 
-    #print (w)
+    print (w)
 
 def proximal_descent():
 
     d = 1000
     w = np.zeros(d)
-    lamda = 1
+    lamda = 0.125
     alpha = 0.1
     epsilon = 0.01
 
@@ -117,7 +122,36 @@ def proximal_descent():
                 print("saturated")
                 break
 
-    #print(w)
+    print(w)
+
+def MBGD ():
+    d = 1000
+    w = np.zeros(d)
+    lamda = 0.1
+    alpha = 0.1
+    epsilon = 0.01
+    B = 50
+
+    curr_loss = 0
+    prev_loss = get_loss(w)
+
+    for i in range (10000):
+        delta = getMBgradient(w, B, lamda)
+        w = w - alpha*delta
+        alpha = update_alpha (alpha, i)
+        curr_loss = get_loss (w)
+
+        if not i%10:
+            loss_diff = abs(curr_loss - prev_loss)
+            print ("loss: ", curr_loss)
+            prev_loss = curr_loss
+            if loss_diff <= epsilon:
+                print ("saturated")
+                break
+
+    print (w)
+
 
 #gradient_descent()
 proximal_descent()
+#MBGD()
