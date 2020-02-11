@@ -1,0 +1,39 @@
+1. Methods choosen: Primal subgradient descent, Primal proximal descent and Mini-Batch gradient descent
+
+a. Primal Subgradient descent:
+
+Hyperparameters: step length, no. of iteration, step length generator, epsilon for convergence, step length min
+Formulas involved: gradient for L1 norm and L2 norm
+Criteria for convergence: when change in loss function becomes very slow
+
+b. Primal proximal gradient descent:
+
+Hyperparameters: lamda for the proximal function, step length intialization, step length genertor, epsilon, step length min
+Formmulas involved: gradient for L2 norm, proximal function
+Criteria for convergence: loss function saturation
+
+c. Mini-Batch gradient descent:
+
+Hyperparameters: batch size
+
+(everything else same as the simple gradient descent)
+
+2. Hyperparameter tuning:
+
+a. GD:
+
+i. tested all a couple of step length [1, 0.1, 0.01] using a held out validation, also tried the linear step generator as well as the sqrt one, min for step length was taken by random
+ii. no. of iterations was kept sufficiently high for the model to converge
+iii. epsilon for conergence: same as step length
+
+b. Proximal:
+
+i. lamda (most imp.): for the proximal function, intialized at 0.1 and obseved that the loss function blowing up, so initialized with 1 and gradually decreased it to 0.12 based on the loss function values.
+
+c. Mini-Batch:
+
+i. batch size: if the batch is too much small, the progress is relatively slow, so kept the batch size high enough and maintained a small execution time
+
+3. can be easily done with the help of lecture codes
+
+4. proximal is the best. convergence is super fast almost within 0.5 seconds and very sparse.

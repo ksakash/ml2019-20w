@@ -7,11 +7,11 @@ import math
 
 Z = np.loadtxt("train")
 
-X_train = Z[:600,1:] # training data
-Y_train = Z[:600,0] # training labels
+X_train = Z[:,1:] # training data
+Y_train = Z[:,0] # training labels
 
-X_test = Z[600:,1:] # testing data
-Y_test = Z[600:,0] # testing data
+X_test = Z[:200,1:] # testing data
+Y_test = Z[:200,0] # testing data
 
 print ("dataset loaded")
 
@@ -93,7 +93,10 @@ def gradient_descent():
                 print ("saturated")
                 break
 
-    print (w)
+    print (np.linalg.norm(w))
+    print (np.linalg.norm(X_test.dot(w) - Y_test, 2))
+    w_t = np.loadtxt("wAstTrain")
+    print (np.linalg.norm(w-w_t, 2))
 
 def proximal_descent():
 
@@ -122,7 +125,12 @@ def proximal_descent():
                 print("saturated")
                 break
 
-    print(w)
+    print(np.linalg.norm(w))
+    print (np.linalg.norm((X_test.dot(w) - Y_test), 2))
+    w_t = np.loadtxt("wAstTrain")
+    print (np.linalg.norm((w - w_t),2))
+    print (np.linalg.norm(w_t, 1))
+
 
 def MBGD ():
     d = 1000
@@ -152,6 +160,6 @@ def MBGD ():
     print (w)
 
 
-#gradient_descent()
-proximal_descent()
+gradient_descent()
+#proximal_descent()
 #MBGD()
