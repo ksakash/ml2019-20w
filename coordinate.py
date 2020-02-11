@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import math
+import time as tm
 
 Z = np.loadtxt("train")
 
@@ -99,7 +100,7 @@ def gradient_descent():
     idx = 0
     curr = 0
     alpha = 0.1
-    epsilon = 0.01
+    epsilon = 0.01 # 0.01
 
     id_count = 0
 
@@ -113,33 +114,28 @@ def gradient_descent():
     loss_prev = 0
     loss_curr = 0
 
+    tic = tm.perf_counter()
+
     for i in range (30000):
         #w_prev = np.copy(w)
         
         delta1 = get_coord_gradient_L1(w, idx)
         delta2 = get_coord_gradient_L2(w, idx)
         delta = C_1*delta1 + C*delta2
-        #print ("alpha: ", alpha)
         w[idx] = w[idx] - alpha*delta
 
-        #loss_prev = get_loss (w_prev)
         loss_curr = get_loss (w)
 
         loss_diff = abs (loss_curr - loss_prev)
         loss_prev = loss_curr
 
-        #print ("loss diff for same coord: ", loss_diff)
-        #print ("delta1: ", delta1, " delta2: ", delta2)
-        # if i <= 10:
-        #     print ("prev w: ", w_prev[:5], " curr w: ", w[:5])
-
         if loss_diff <= epsilon:
-            print ("idx ", idx, " converged")
+            #print ("idx ", idx, " converged")
             loss_curr_coord = loss_curr
-            print ("loss: ", loss_curr_coord)
+            #print ("loss: ", loss_curr_coord)
             total_diff = (loss_curr_coord - loss_prev_coord)
             if (total_diff >= 0):
-                print ("no change")
+                #print ("no change")
                 #w[idx] = w_idx
                 if abs(w[idx]) < 0.01:
                     w[idx] = 0
@@ -147,15 +143,16 @@ def gradient_descent():
                 #print (perm.size)
             loss_prev_coord = loss_curr_coord
             print ("total diff: ", total_diff)
-            #if abs(w[idx]) < 0.1:
-            #    w[idx] = 0
+            if abs(w[idx]) < 0.1:
+                w[idx] = 0
             curr, perm = get_rand_perm_coord (curr, perm, d)
             idx = perm[curr]
-            w_idx = w[idx]
+            
             #idx = get_cyclic_coord (idx, d)
             #idx = get_random_coord (d)
+            w_idx = w[idx]
             alpha = 0.01
-            print ("idx count: ", id_count)
+            #print ("idx count: ", id_count)
             id_count = 0
             #continue
             
@@ -166,7 +163,9 @@ def gradient_descent():
             # print ("loss: ", get_loss(w))
         alpha = update_aplha (alpha, id_count)
     
+    toc = tm.perf_counter()
     print (w)
     print ("final loss: ", get_loss(w))
+    print ("time taken: ", toc-tic)
 
 gradient_descent()

@@ -49,7 +49,7 @@ def proximal (w, lamda):
     return x
 
 def update_alpha(alpha, i):
-    min_ = 1e-3
+    min_ = 1e-4
     if alpha <= min_:
         return min_
     return alpha/math.sqrt(i+1)
@@ -58,6 +58,7 @@ def get_loss (w):
     L2 = np.linalg.norm(X_train.dot(w) - Y_train, 2)
     L2 = L2*L2
     L1 = np.linalg.norm(w, 1)
+    print ("L1: ", L1, " L2: ", L2)
     return L1 + L2
 
 # contains template for gardient descent
@@ -93,7 +94,7 @@ def proximal_descent():
 
     d = 1000
     w = np.zeros(d)
-    lamda = 0.01
+    lamda = 1
     alpha = 0.1
     epsilon = 0.01
 
@@ -101,12 +102,14 @@ def proximal_descent():
     prev_loss = get_loss(w)
 
     for i in range (1000):
+        
         delta = getgradientL2(w)
         w = w - alpha*delta
         w = proximal (w, lamda)
-        aplha = update_aplha (alpha, i)
+        aplha = update_alpha (alpha, i)
+        curr_loss = get_loss(w)
+
         if not i%10:
-            curr_losss = get_loss(w)
             loss_diff = abs(curr_loss - prev_loss)
             print ("loss: ", curr_loss)
             prev_loss = curr_loss
@@ -114,7 +117,7 @@ def proximal_descent():
                 print("saturated")
                 break
 
-    print(w)
+    #print(w)
 
-# gradient_descent()
+#gradient_descent()
 proximal_descent()
