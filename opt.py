@@ -72,7 +72,6 @@ def gradient_descent():
 
     d = X_train.shape[1]
     w = np.zeros(d)
-    B = 5
     lamda = 1
     alpha = 0.1
     epsilon = 0.01
@@ -137,13 +136,13 @@ def MBGD ():
     w = np.zeros(d)
     lamda = 0.1
     alpha = 0.1
-    epsilon = 0.01
-    B = 50
+    epsilon = 0.0001
+    B = 75
 
     curr_loss = 0
     prev_loss = get_loss(w)
 
-    for i in range (10000):
+    for i in range (15000):
         delta = getMBgradient(w, B, lamda)
         w = w - alpha*delta
         alpha = update_alpha (alpha, i)
@@ -160,6 +159,38 @@ def MBGD ():
     print (w)
 
 
-gradient_descent()
+def soft_gradient (rho, lamda):
+    if (rho + lamda < 0):
+        return rho + lamda
+    elif (rho - lamda > 0):
+        return rho - lamda
+    else:
+        return 0
+
+def coordinate_descent():
+    d = 1000
+    w = np.zeros(d)
+    lamda = 0.35
+    epsilon = 0.001
+    loss = 0
+
+    for i in range (5000):
+        i_ = i%d
+        rho = np.dot(X_train[:,i_], Y_train - np.dot(X_train, w) + w[i_]*X_train[:,i_])
+        z = np.linalg.norm(X_train[:,i_], 2)**2
+
+        w[i_] = soft_gradient(rho, lamda)/z
+
+        loss = get_loss(w)
+
+    print (w)
+    print (loss)
+
+tic = time.perf_counter()
+#gradient_descent()
 #proximal_descent()
 #MBGD()
+#coordinate_descent()
+toc = time.perf_counter()
+
+print ("time taken: ", toc-tic)

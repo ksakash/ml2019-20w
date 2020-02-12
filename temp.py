@@ -1,10 +1,11 @@
 import numpy as np
 import random
 
-n = 10
+n = 5
+m = 10
 B = 5
-X = np.zeros((n,n))
-Y = np.zeros(n)
+X = np.zeros((n,m))
+Y = np.zeros(m)
 Z = np.copy(Y)
 
 Z[1] = 1000
@@ -20,7 +21,5 @@ Y[1] = 2
 Y[2] = 53
 Y[3] = 32
 
-Y = np.delete(Y, 1, 0)
 
-print(Y)
-print (len(Y))
+print (X.dot(Y))
