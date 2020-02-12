@@ -17,7 +17,6 @@ print ("dataset loaded")
 
 # gradient for l2 loss
 def getgradientL2(w):
-    
     error = X_train.dot(w) - Y_train
     return 2*(np.transpose(X_train).dot(error))
 
@@ -48,7 +47,7 @@ def getMBgradient(w, B, lamda):
 
     return L2_grad + lamda*L1_grad
 
-# proximal function for L1 norm
+# proximal function
 def proximal (w, lamda):
 
     x = np.sign(w)*np.maximum(np.absolute(w) - lamda, 0)
@@ -100,29 +99,29 @@ def gradient_descent():
 def proximal_descent():
 
     d = 1000
-    w = np.zeros(d)
     lamda = 0.125
     alpha = 0.1
     epsilon = 0.01
 
-    curr_loss = 0
-    prev_loss = get_loss(w)
+    for _ in range(1):
+        w = np.zeros(d)
+        curr_loss = 0
+        prev_loss = get_loss(w)
 
-    for i in range (1000):
-        
-        delta = getgradientL2(w)
-        w = w - alpha*delta
-        w = proximal (w, lamda)
-        aplha = update_alpha (alpha, i)
-        curr_loss = get_loss(w)
+        for i in range (100):
 
-        if not i%10:
-            loss_diff = abs(curr_loss - prev_loss)
-            print ("loss: ", curr_loss)
-            prev_loss = curr_loss
-            if loss_diff <= epsilon:
-                print("saturated")
-                break
+            delta = getgradientL2(w)
+            w = w - alpha*delta
+            w = proximal (w, lamda)
+            curr_loss = get_loss(w)
+
+            if not i%10:
+                loss_diff = abs(curr_loss - prev_loss)
+                print ("loss: ", curr_loss)
+                prev_loss = curr_loss
+                if loss_diff <= epsilon:
+                    print("saturated")
+                    break
 
     print(np.linalg.norm(w))
     print (np.linalg.norm((X_test.dot(w) - Y_test), 2))
@@ -187,10 +186,10 @@ def coordinate_descent():
     print (loss)
 
 tic = time.perf_counter()
-#gradient_descent()
-#proximal_descent()
-#MBGD()
-#coordinate_descent()
+# gradient_descent()
+# proximal_descent()
+# MBGD()
+# coordinate_descent()
 toc = time.perf_counter()
 
 print ("time taken: ", toc-tic)
