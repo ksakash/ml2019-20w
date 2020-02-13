@@ -2,8 +2,7 @@ import numpy as np
 import random
 import time
 import math
-
-#alpha = 1 # learning rate
+from matplotlib import pyplot as plt
 
 Z = np.loadtxt("train")
 
@@ -78,12 +77,25 @@ def gradient_descent():
     curr_loss = 0
     prev_loss = 0
 
-    for i in range (10000):
+    loss_val_series = []
+    time_series = []
+    tot_time = 0
+
+    for i in range (7000):
+
+        tic = time.perf_counter()
+
         delta = getgradientL2(w) + lamda*getgradientL1(w)
         w = w - alpha*delta
         alpha = update_alpha (alpha, i)
+
+        toc = time.perf_counter()
+        tot_time = tot_time + toc - tic
+
         if not i%10:
             curr_loss = get_loss(w)
+            time_series.append(tot_time)
+            loss_val_series.append(curr_loss)
             loss_diff = abs(curr_loss-prev_loss)
             print ("loss: ", curr_loss)
             prev_loss = curr_loss
@@ -96,6 +108,8 @@ def gradient_descent():
     w_t = np.loadtxt("wAstTrain")
     print (np.linalg.norm(w-w_t, 2))
 
+    return (time_series, loss_val_series)
+
 def proximal_descent():
 
     d = 1000
@@ -103,31 +117,47 @@ def proximal_descent():
     alpha = 0.1
     epsilon = 0.01
 
-    for _ in range(1):
-        w = np.zeros(d)
-        curr_loss = 0
-        prev_loss = get_loss(w)
+    w = np.zeros(d)
+    curr_loss = 0
+    prev_loss = get_loss(w)
 
-        for i in range (100):
+    loss_val_series = []
+    time_series = []
 
-            delta = getgradientL2(w)
-            w = w - alpha*delta
-            w = proximal (w, lamda)
+    tot_time = 0
+
+    time_series.append(0)
+    loss_val_series.append(get_loss(w))
+
+    for i in range (7000):
+
+        tic = time.perf_counter()
+
+        delta = getgradientL2(w)
+        w = w - alpha*delta
+        w = proximal (w, lamda)
+
+        toc = time.perf_counter()
+        tot_time = toc - tic + tot_time
+
+        if not i%10:
             curr_loss = get_loss(w)
-
-            if not i%10:
-                loss_diff = abs(curr_loss - prev_loss)
-                print ("loss: ", curr_loss)
-                prev_loss = curr_loss
-                if loss_diff <= epsilon:
-                    print("saturated")
-                    break
+            time_series.append(tot_time)
+            loss_val_series.append(curr_loss)
+            loss_diff = abs(curr_loss - prev_loss)
+            print ("loss: ", curr_loss)
+            prev_loss = curr_loss
+            if loss_diff <= epsilon:
+                print("saturated")
+                break
 
     print(np.linalg.norm(w))
     print (np.linalg.norm((X_test.dot(w) - Y_test), 2))
     w_t = np.loadtxt("wAstTrain")
     print (np.linalg.norm((w - w_t),2))
     print (np.linalg.norm(w_t, 1))
+
+    return (time_series, loss_val_series)
 
 
 def MBGD ():
@@ -141,21 +171,37 @@ def MBGD ():
     curr_loss = 0
     prev_loss = get_loss(w)
 
-    for i in range (15000):
+    loss_val_series = []
+    time_series = []
+
+    tot_time = 0
+
+    for i in range (7000):
+
+        tic = time.perf_counter()
+
         delta = getMBgradient(w, B, lamda)
         w = w - alpha*delta
         alpha = update_alpha (alpha, i)
-        curr_loss = get_loss (w)
+
+        toc = time.perf_counter()
+        tot_time = tot_time + toc - tic
 
         if not i%10:
+            curr_loss = get_loss (w)
+            time_series.append(tot_time)
+            loss_val_series.append(curr_loss)
             loss_diff = abs(curr_loss - prev_loss)
             print ("loss: ", curr_loss)
             prev_loss = curr_loss
             if loss_diff <= epsilon:
                 print ("saturated")
+                print(i)
                 break
 
     print (w)
+
+    return (time_series, loss_val_series)
 
 
 def soft_gradient (rho, lamda):
@@ -171,25 +217,57 @@ def coordinate_descent():
     w = np.zeros(d)
     lamda = 0.35
     epsilon = 0.001
-    loss = 0
 
-    for i in range (5000):
+    time_series = []
+    loss_val_series = []
+    tot_time = 0
+
+    for i in range (4000):
+
+        tic = time.perf_counter()
         i_ = i%d
         rho = np.dot(X_train[:,i_], Y_train - np.dot(X_train, w) + w[i_]*X_train[:,i_])
         z = np.linalg.norm(X_train[:,i_], 2)**2
 
         w[i_] = soft_gradient(rho, lamda)/z
+        toc = time.perf_counter()
 
-        loss = get_loss(w)
+        tot_time = tot_time + toc - tic
 
-    print (w)
+        if not i%10:
+            loss = get_loss(w)
+            time_series.append(tot_time)
+            loss_val_series.append(loss)
+            print ("loss: ", loss)
+
+    # print (w)
     print (loss)
 
-tic = time.perf_counter()
-# gradient_descent()
-# proximal_descent()
-# MBGD()
-# coordinate_descent()
-toc = time.perf_counter()
+    return (time_series, loss_val_series)
 
-print ("time taken: ", toc-tic)
+# tic = time.perf_counter()
+(x_gd, y_gd) = gradient_descent()
+(x_px, y_px) = proximal_descent()
+(x_mbgd, y_mbgd) = MBGD()
+(x_coord, y_coord) = coordinate_descent()
+# toc = time.perf_counter()
+
+# print ("time taken: ", toc-tic)
+
+def getFigure( sizex = 7, sizey = 7 ):
+    fig = plt.figure( figsize = (sizex, sizey) )
+    return fig
+
+fig = getFigure()
+plt.figure( fig.number )
+
+plt.plot( x_mbgd, y_mbgd, color = 'k', linestyle = '--', label = "MBGD" )
+plt.plot( x_coord, y_coord, color = 'm', linestyle = ':', label = "CGD" )
+plt.plot( x_px, y_px, color = 'r', linestyle = '-', label = "PX" )
+plt.plot( x_gd, y_gd, color = 'b', linestyle = '--', label = "GD" )
+
+plt.xlabel( "Elapsed time (sec)" )
+plt.ylabel( "LASSO Objective value" )
+plt.legend()
+
+plt.show()
