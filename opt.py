@@ -4,7 +4,7 @@ import time
 import math
 from matplotlib import pyplot as plt
 
-Z = np.loadtxt("train")
+Z = np.loadtxt("test")
 
 X_train = Z[:,1:] # training data
 Y_train = Z[:,0] # training labels
@@ -245,15 +245,16 @@ def coordinate_descent():
 
     return (time_series, loss_val_series)
 
-# tic = time.perf_counter()
-(x_gd, y_gd) = gradient_descent()
+tic = time.perf_counter()
+# (x_gd, y_gd) = gradient_descent()
 (x_px, y_px) = proximal_descent()
-(x_mbgd, y_mbgd) = MBGD()
-(x_coord, y_coord) = coordinate_descent()
-# toc = time.perf_counter()
+# (x_mbgd, y_mbgd) = MBGD()
+# (x_coord, y_coord) = coordinate_descent()
+toc = time.perf_counter()
 
-# print ("time taken: ", toc-tic)
+print ("time taken: ", toc-tic)
 
+"""
 def getFigure( sizex = 7, sizey = 7 ):
     fig = plt.figure( figsize = (sizex, sizey) )
     return fig
@@ -271,3 +272,4 @@ plt.ylabel( "LASSO Objective value" )
 plt.legend()
 
 plt.show()
+"""
